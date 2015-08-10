@@ -11,14 +11,12 @@
     {
         #region fields
         private readonly IActorRef consoleWriterActor;
-        private readonly IActorRef tailCoordinatorActor;
         #endregion
 
         #region constructor
-        public FileValidatorActor(IActorRef consoleWriterActor, IActorRef tailCoordinatorActor)
+        public FileValidatorActor(IActorRef consoleWriterActor)
         {
             this.consoleWriterActor = consoleWriterActor;
-            this.tailCoordinatorActor = tailCoordinatorActor;
         }
         #endregion
 
@@ -43,7 +41,7 @@
                     this.consoleWriterActor.Tell(new Messages.InputSuccess(string.Format("Starting processing for {0}", msg)));
 
                     // start coordinator
-                    this.tailCoordinatorActor.Tell(new TailCoordinatorActor.StartTail(msg, this.consoleWriterActor));
+                    Context.ActorSelection("akka://MyActorSystem/user/tailCoordinatorActor").Tell(new TailCoordinatorActor.StartTail(msg, this.consoleWriterActor));
                 }
                 else
                 {
