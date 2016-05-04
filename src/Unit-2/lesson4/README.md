@@ -59,6 +59,8 @@ Here's what happens to the behavior stack when our example actor becomes `Authen
 
 ![Become Authenticated - push a new behavior onto the stack](images/behaviorstack-become.gif)
 
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson4/images/behaviorstack-become.gif).
+
 > NOTE: [`Become`](http://api.getakka.net/docs/stable/html/1DBD4D33.htm "Akka.NET Stable API - Become method") will delete the old behavior off of the stack - so the stack will never have more than one behavior in it at a time.
 >
 > Use [`BecomeStacked`](http://api.getakka.net/docs/stable/html/33B96712.htm "Akka.NET Stable API Docs - BecomeStacked method") if you want to push behavior onto the stack, and [`UnbecomeStacked`](http://api.getakka.net/docs/stable/html/7D8311A9.htm "Akka.NET Stable API Docs - UnbecomeStacked method") if you want to revert to a previous behavior. Most users only ever need to use `Become`.
@@ -72,6 +74,7 @@ Whenever we call `UnbecomeStacked`, we pop our current behavior off of the stack
 Here's what happens to the behavior stack when our example actor `UnbecomeStacked`s:
 
 ![Unbecome - pop the current behavior off of the stack](images/behaviorstack-unbecome.gif)
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson4/images/behaviorstack-unbecome.gif).
 
 
 #### What is the API to change behaviors?
@@ -317,10 +320,12 @@ Add a new method called `HandleMetricsPaused` to the `ChartingActor`'s `Individu
 // Actors/ChartingActor.cs - inside Individual Message Type Handlers region
 private void HandleMetricsPaused(Metric metric)
 {
-    if (!string.IsNullOrEmpty(metric.Series) && _seriesIndex.ContainsKey(metric.Series))
+    if (!string.IsNullOrEmpty(metric.Series) 
+        && _seriesIndex.ContainsKey(metric.Series))
     {
         var series = _seriesIndex[metric.Series];
-        series.Points.AddXY(xPosCounter++, 0.0d); //set the Y value to zero when we're paused
+        // set the Y value to zero when we're paused
+        series.Points.AddXY(xPosCounter++, 0.0d);
         while (series.Points.Count > MaxPoints) series.Points.RemoveAt(0);
         SetChartBoundaries();
     }
@@ -355,11 +360,13 @@ private void Paused()
 And finally, let's **replace both of `ChartingActor`'s constructors**:
 
 ```csharp
-public ChartingActor(Chart chart, Button pauseButton) : this(chart, new Dictionary<string, Series>(), pauseButton)
+public ChartingActor(Chart chart, Button pauseButton) :
+    this(chart, new Dictionary<string, Series>(), pauseButton)
 {
 }
 
-public ChartingActor(Chart chart, Dictionary<string, Series> seriesIndex, Button pauseButton)
+public ChartingActor(Chart chart, Dictionary<string, Series> seriesIndex,
+    Button pauseButton)
 {
     _chart = chart;
     _seriesIndex = seriesIndex;
@@ -372,8 +379,9 @@ public ChartingActor(Chart chart, Dictionary<string, Series> seriesIndex, Button
 Since we changed the constructor arguments for `ChartingActor` in Phase 2, we need to fix this inside our `Main_Load` event handler.
 
 ```csharp
-//Main.cs - Main_Load event handler
-_chartActor = Program.ChartActors.ActorOf(Props.Create(() => new ChartingActor(sysChart, btnPauseResume)), "charting");
+// Main.cs - Main_Load event handler
+_chartActor = Program.ChartActors.ActorOf(Props.Create(() => 
+    new ChartingActor(sysChart, btnPauseResume)), "charting");
 ```
 
 And finally, we need to update our `btnPauseResume` click event handler to have it tell the `ChartingActor` to pause or resume live updates:
@@ -391,6 +399,8 @@ Build and run `SystemCharting.sln` and you should see the following:
 
 ![Successful Lesson 4 Output](images/dothis-successful-run4.gif)
 
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson4/images/dothis-successful-run4.gif).
+
 Compare your code to the code in the [/Completed/ folder](Completed/) to compare your final output to what the instructors produced.
 
 ## Great job!
@@ -405,15 +415,15 @@ Here is a high-level overview of our working system at this point:
 What happens if I toggle a chart on or off when the `ChartingActor` is in a paused state?
 
 ![Lesson 4 Output Bugs](images/dothis-fail4.gif)
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson4/images/dothis-fail4.gif).
 
 ### DOH!!!!!! It doesn't work!
 
 *This is exactly the problem we're going to solve in the next lesson*, using a message `Stash` to defer processing of messages until we're ready.
 
-**Let's move onto [Lesson 5 - Using `Stash` to Defer Processing of Messages](../lesson5).**
+**Let's move onto [Lesson 5 - Using `Stash` to Defer Processing of Messages](../lesson5/README.md).**
 
 ## Any questions?
-**Don't be afraid to ask questions** :).
 
 Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
 

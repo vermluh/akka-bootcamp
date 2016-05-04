@@ -94,6 +94,7 @@ In this exercise we're going to use a `RoundRobinPool` to throw additional `Gith
 This is how fast `GithubActors.sln` runs before we add our `Pool` router - take note:
 
 ![GithubActors without parallelism](../lesson1/images/lesson1-after.gif)
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-3/lesson1/images/lesson1-after.gif).
 
 ### Phase 1 - Modify `GithubCoordinatorActor.PreStart` to create `_githubWorker` as a router
 This exercise consists of adding two lines of code.
@@ -111,7 +112,8 @@ And then change the `GithubCoorindatorActor.PreStart` method from this:
 // original GithubCoordinatorActor.PreStart method from the start of the lesson
  protected override void PreStart()
 {
-    _githubWorker = Context.ActorOf(Props.Create(() => new GithubWorkerActor(GithubClientFactory.GetClient)));
+    _githubWorker = Context.ActorOf(Props.Create(() =>
+        new GithubWorkerActor(GithubClientFactory.GetClient)));
 }
 ```
 
@@ -121,7 +123,8 @@ To this:
 // CHANGE GithubCoordinatorActor.PreStart to use this code instead
 protected override void PreStart()
 {
-    _githubWorker = Context.ActorOf(Props.Create(() => new GithubWorkerActor(GithubClientFactory.GetClient))
+    _githubWorker = Context.ActorOf(Props.Create(() =>
+        new GithubWorkerActor(GithubClientFactory.GetClient))
         .WithRouter(new RoundRobinPool(10)));
 }
 ```
@@ -132,6 +135,7 @@ That's it!
 Build and run `GithubActors.sln`, and let's compare the performance of the app now that we're using 10 `GithubWorkerActor` instances per `GithubCoordinatorActor` instead of 1:
 
 ![GtihubActors at the end of lesson 2](images/lesson2-after.gif)
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-3/lesson2/images/lesson2-after.gif).
 
 **At the start of the lesson, it took us 16 seconds to download our first 4 users** for https://github.com/petabridge/akka-bootcamp. **At the end of the lesson it took us less than 4 seconds**. And it only took two lines of code to do it - that's how easy it is to parallelize work using actors.
 
@@ -144,11 +148,9 @@ Actors are cheap and easy to clone. Use them liberally with routers!
 ## Great job!
 Now that we've seen how both `Group` and `Pool` routers work, it's easy for us to add them in areas where we can benefit from parallelism or need scale-out for additional jobs.
 
-**Let's move onto [How to use HOCON to configure your routers](../lesson3).**
+**Let's move onto [How to use HOCON to configure your routers](../lesson3/README.md).**
 
 ## Any questions?
-**Don't be afraid to ask questions** :).
-
 Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
 
 ### Problems with the code?

@@ -258,11 +258,13 @@ Right now our `ChartingActor` can't handle any messages that are sent to it - so
 First things first, add the following method to the `Individual Message Type Handlers` region of the `ChartingActor`:
 
 ```csharp
-// Actors/ChartingActor.cs in the ChartingActor class (Individual Message Type Handlers region)
+// Actors/ChartingActor.cs in the ChartingActor class
+// (Individual Message Type Handlers region)
 
 private void HandleAddSeries(AddSeries series)
 {
-    if(!string.IsNullOrEmpty(series.Series.Name) && !_seriesIndex.ContainsKey(series.Series.Name))
+    if(!string.IsNullOrEmpty(series.Series.Name) &&
+    !_seriesIndex.ContainsKey(series.Series.Name))
     {
         _seriesIndex.Add(series.Series.Name, series.Series);
         _chart.Series.Add(series.Series);
@@ -300,7 +302,8 @@ In `Main.cs`, add this code to the body of the click handler:
 // Main.cs - class Main
 private void button1_Click(object sender, EventArgs e)
 {
-    var series = ChartDataHelper.RandomSeries("FakeSeries" + _seriesCounter.GetAndIncrement());
+    var series = ChartDataHelper.RandomSeries("FakeSeries" +
+        _seriesCounter.GetAndIncrement());
     _chartActor.Tell(new ChartingActor.AddSeries(series));
 }
 ```
@@ -312,15 +315,16 @@ Build and run `SystemCharting.sln` and you should see the following:
 
 ![Successful Lesson 2 Output](images/dothis-successful-run2.gif)
 
+> NOTE: If you're following along using the eBook / .ePub, you won't see the animation. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson2/images/dothis-successful-run2.gif).
+
 Compare your code to the code in the [/Completed/ folder](Completed/) to compare your final output to what the instructors produced.
 
 ## Great job!
 Nice work, again. After having completed this lesson you should have a much better understanding of pattern matching in Akka.NET and an appreciation for how `ReceiveActor` is different than `UntypedActor`.
 
-**Let's move onto [Lesson 3 - Using the `Scheduler` to Send Recurring Messages](../lesson3).**
+**Let's move onto [Lesson 3 - Using the `Scheduler` to Send Recurring Messages](../lesson3/README.md).**
 
 ## Any questions?
-**Don't be afraid to ask questions** :).
 
 Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
 

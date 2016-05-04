@@ -113,8 +113,11 @@ var someMessage = new FetchFeed() {Url = ...};
 // cancellable recurring message send created automatically
 var cancellation =  system
    .Scheduler
-   .ScheduleTellRepeatedlyCancelable(TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(30)
-                 someActor, someMessage, ActorRefs.Nobody);
+   .ScheduleTellRepeatedlyCancelable(TimeSpan.FromMinutes(30), 
+                 TimeSpan.FromMinutes(30)
+                 someActor, 
+                 someMessage, 
+                 ActorRefs.Nobody);
 
 // here we actually cancel the message and prevent it from being delivered
 cancellation.Cancel();
@@ -193,7 +196,8 @@ We're not going to need it. **Delete the "Add Series" button** from the **[Desig
 // DELETE THIS:
 private void button1_Click(object sender, EventArgs e)
 {
-    var series = ChartDataHelper.RandomSeries("FakeSeries" + _seriesCounter.GetAndIncrement());
+    var series = ChartDataHelper.RandomSeries("FakeSeries" +
+        _seriesCounter.GetAndIncrement());
     _chartActor.Tell(new ChartingActor.AddSeries(series));
 }
 ```
@@ -306,7 +310,8 @@ namespace ChartApp.Actors
     }
 
     /// <summary>
-    /// Unsubscribes <see cref="Subscriber"/> from receiving updates for a given counter
+    /// Unsubscribes <see cref="Subscriber"/> from receiving updates 
+    /// for a given counter
     /// </summary>
     public class UnsubscribeCounter
     {
@@ -356,7 +361,8 @@ namespace ChartApp.Actors
         private readonly HashSet<IActorRef> _subscriptions;
         private readonly ICancelable _cancelPublishing;
 
-        public PerformanceCounterActor(string seriesName, Func<PerformanceCounter> performanceCounterGenerator)
+        public PerformanceCounterActor(string seriesName,
+            Func<PerformanceCounter> performanceCounterGenerator)
         {
             _seriesName = seriesName;
             _performanceCounterGenerator = performanceCounterGenerator;
@@ -370,8 +376,13 @@ namespace ChartApp.Actors
         {
             //create a new instance of the performance counter
             _counter = _performanceCounterGenerator();
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(250), Self,
-                new GatherMetrics(), Self, _cancelPublishing);
+            Context.System.Scheduler.ScheduleTellRepeatedly(
+                TimeSpan.FromMilliseconds(250),
+                TimeSpan.FromMilliseconds(250), 
+                Self,
+                new GatherMetrics(), 
+                Self, 
+                _cancelPublishing);
         }
 
         protected override void PostStop()
@@ -476,7 +487,8 @@ The `PerformanceCounterActor` has pub / sub built into it by way of its handlers
 // ...
 else if (message is SubscribeCounter)
 {
-    // add a subscription for this counter (it is up to the parent to filter by counter types)
+    // add a subscription for this counter (it is up to the parent
+    // to filter by counter types)
     var sc = message as SubscribeCounter;
     _subscriptions.Add(sc.Subscriber);
 }
@@ -501,7 +513,8 @@ protected override void PreStart()
 {
     // create a new instance of the performance counter
     _counter = _performanceCounterGenerator();
-    Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(250), Self,
+    Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromMilliseconds(250),
+    TimeSpan.FromMilliseconds(250), Self,
         new GatherMetrics(), Self, _cancelPublishing);
 }
 ```
@@ -550,7 +563,8 @@ namespace ChartApp.Actors
         #region Message types
 
         /// <summary>
-        /// Subscribe the <see cref="ChartingActor"/> to updates for <see cref="Counter"/>.
+        /// Subscribe the <see cref="ChartingActor"/> to 
+        /// updates for <see cref="Counter"/>.
         /// </summary>
         public class Watch
         {
@@ -563,7 +577,8 @@ namespace ChartApp.Actors
         }
 
         /// <summary>
-        /// Unsubscribe the <see cref="ChartingActor"/> to updates for <see cref="Counter"/>.
+        /// Unsubscribe the <see cref="ChartingActor"/> to 
+        /// updates for <see cref="Counter"/>
         /// </summary>
         public class Unwatch
         {
@@ -578,14 +593,18 @@ namespace ChartApp.Actors
         #endregion
 
         /// <summary>
-        /// Methods for generating new instances of all <see cref="PerformanceCounter"/>s we want to monitor
+        /// Methods for generating new instances of all <see cref="PerformanceCounter"/>s
+        /// we want to monitor
         /// </summary>
-        private static readonly Dictionary<CounterType, Func<PerformanceCounter>> CounterGenerators =
-			new Dictionary<CounterType, Func<PerformanceCounter>>()
+        private static readonly Dictionary<CounterType, Func<PerformanceCounter>>
+            CounterGenerators = new Dictionary<CounterType, Func<PerformanceCounter>>()
         {
-            {CounterType.Cpu, () => new PerformanceCounter("Processor", "% Processor Time", "_Total", true)},
-            {CounterType.Memory, () => new PerformanceCounter("Memory", "% Committed Bytes In Use", true)},
-            {CounterType.Disk, () => new PerformanceCounter("LogicalDisk", "% Disk Time", "_Total", true)},
+            {CounterType.Cpu, () => new PerformanceCounter("Processor", 
+                "% Processor Time", "_Total", true)},
+            {CounterType.Memory, () => new PerformanceCounter("Memory", 
+                "% Committed Bytes In Use", true)},
+            {CounterType.Disk, () => new PerformanceCounter("LogicalDisk",
+                "% Disk Time", "_Total", true)},
         };
 
         /// <summary>
@@ -596,14 +615,17 @@ namespace ChartApp.Actors
 			new Dictionary<CounterType, Func<Series>>()
         {
             {CounterType.Cpu, () =>
-			new Series(CounterType.Cpu.ToString()){ ChartType = SeriesChartType.SplineArea,
-			 Color = Color.DarkGreen}},
+			new Series(CounterType.Cpu.ToString()){ 
+                 ChartType = SeriesChartType.SplineArea,
+                 Color = Color.DarkGreen}},
             {CounterType.Memory, () =>
-			new Series(CounterType.Memory.ToString()){ ChartType = SeriesChartType.FastLine,
-			Color = Color.MediumBlue}},
+			new Series(CounterType.Memory.ToString()){ 
+                ChartType = SeriesChartType.FastLine,
+                Color = Color.MediumBlue}},
             {CounterType.Disk, () =>
-			new Series(CounterType.Disk.ToString()){ ChartType = SeriesChartType.SplineArea,
-			Color = Color.DarkRed}},
+			new Series(CounterType.Disk.ToString()){ 
+                ChartType = SeriesChartType.SplineArea,
+                Color = Color.DarkRed}},
         };
 
         private Dictionary<CounterType, IActorRef> _counterActors;
@@ -615,7 +637,8 @@ namespace ChartApp.Actors
         {
         }
 
-        public PerformanceCounterCoordinatorActor(IActorRef chartingActor, Dictionary<CounterType, IActorRef> counterActors)
+        public PerformanceCounterCoordinatorActor(IActorRef chartingActor,
+            Dictionary<CounterType, IActorRef> counterActors)
         {
             _chartingActor = chartingActor;
             _counterActors = counterActors;
@@ -624,19 +647,24 @@ namespace ChartApp.Actors
             {
                 if (!_counterActors.ContainsKey(watch.Counter))
                 {
-                    // create a child actor to monitor this counter if one doesn't exist already
+                    // create a child actor to monitor this counter if
+                    // one doesn't exist already
                     var counterActor = Context.ActorOf(Props.Create(() =>
-						new PerformanceCounterActor(watch.Counter.ToString(), CounterGenerators[watch.Counter])));
+						new PerformanceCounterActor(watch.Counter.ToString(),
+                                CounterGenerators[watch.Counter])));
 
                     // add this counter actor to our index
                     _counterActors[watch.Counter] = counterActor;
                 }
 
                 // register this series with the ChartingActor
-                _chartingActor.Tell(new ChartingActor.AddSeries(CounterSeries[watch.Counter]()));
+                _chartingActor.Tell(new ChartingActor.AddSeries(
+                    CounterSeries[watch.Counter]()));
 
-                // tell the counter actor to begin publishing its statistics to the _chartingActor
-                _counterActors[watch.Counter].Tell(new SubscribeCounter(watch.Counter, _chartingActor));
+                // tell the counter actor to begin publishing its
+                // statistics to the _chartingActor
+                _counterActors[watch.Counter].Tell(new SubscribeCounter(watch.Counter,
+                    _chartingActor));
             });
 
             Receive<Unwatch>(unwatch =>
@@ -646,11 +674,13 @@ namespace ChartApp.Actors
                     return; // noop
                 }
 
-                // unsubscribe the ChartingActor from receiving anymore updates
-                _counterActors[unwatch.Counter].Tell(new UnsubscribeCounter(unwatch.Counter, _chartingActor));
+                // unsubscribe the ChartingActor from receiving any more updates
+                _counterActors[unwatch.Counter].Tell(new UnsubscribeCounter(
+                    unwatch.Counter, _chartingActor));
 
                 // remove this series from the ChartingActor
-                _chartingActor.Tell(new ChartingActor.RemoveSeries(unwatch.Counter.ToString()));
+                _chartingActor.Tell(new ChartingActor.RemoveSeries(
+                    unwatch.Counter.ToString()));
             });
         }
 
@@ -713,7 +743,8 @@ namespace ChartApp.Actors
                 // toggle is currently on
 
                 // stop watching this counter
-                _coordinatorActor.Tell(new PerformanceCounterCoordinatorActor.Unwatch(_myCounterType));
+                _coordinatorActor.Tell(
+                    new PerformanceCounterCoordinatorActor.Unwatch(_myCounterType));
 
                 FlipToggle();
             }
@@ -722,7 +753,8 @@ namespace ChartApp.Actors
                 // toggle is currently off
 
                 // start watching this counter
-                _coordinatorActor.Tell(new PerformanceCounterCoordinatorActor.Watch(_myCounterType));
+                _coordinatorActor.Tell(
+                    new PerformanceCounterCoordinatorActor.Watch(_myCounterType));
 
                 FlipToggle();
             }
@@ -738,7 +770,8 @@ namespace ChartApp.Actors
             _isToggledOn = !_isToggledOn;
 
             // change the text of the button
-            _myButton.Text = string.Format("{0} ({1})", _myCounterType.ToString().ToUpperInvariant(),
+            _myButton.Text = string.Format("{0} ({1})",
+                _myCounterType.ToString().ToUpperInvariant(),
                 _isToggledOn ? "ON" : "OFF");
         }
     }
@@ -852,7 +885,8 @@ private void HandleInitialize(InitializeChart ic)
 
 private void HandleAddSeries(AddSeries series)
 {
-    if(!string.IsNullOrEmpty(series.Series.Name) && !_seriesIndex.ContainsKey(series.Series.Name))
+    if(!string.IsNullOrEmpty(series.Series.Name) &&
+        !_seriesIndex.ContainsKey(series.Series.Name))
     {
         _seriesIndex.Add(series.Series.Name, series.Series);
         _chart.Series.Add(series.Series);
@@ -862,7 +896,8 @@ private void HandleAddSeries(AddSeries series)
 
 private void HandleRemoveSeries(RemoveSeries series)
 {
-    if (!string.IsNullOrEmpty(series.SeriesName) && _seriesIndex.ContainsKey(series.SeriesName))
+    if (!string.IsNullOrEmpty(series.SeriesName) &&
+        _seriesIndex.ContainsKey(series.SeriesName))
     {
         var seriesToRemove = _seriesIndex[series.SeriesName];
         _seriesIndex.Remove(series.SeriesName);
@@ -873,7 +908,8 @@ private void HandleRemoveSeries(RemoveSeries series)
 
 private void HandleMetrics(Metric metric)
 {
-    if (!string.IsNullOrEmpty(metric.Series) && _seriesIndex.ContainsKey(metric.Series))
+    if (!string.IsNullOrEmpty(metric.Series) && 
+        _seriesIndex.ContainsKey(metric.Series))
     {
         var series = _seriesIndex[metric.Series];
         series.Points.AddXY(xPosCounter++, metric.CounterValue);
@@ -886,7 +922,8 @@ private void HandleMetrics(Metric metric)
 And finally, add these `Receive<T>` handlers to the constructor for `ChartingActor`:
 
 ```csharp
-// Actors/ChartingActor.cs - add these below the original Receive<T> handlers in the constructor
+// Actors/ChartingActor.cs - add these below the original Receive<T>
+// handlers in the ctor
 Receive<RemoveSeries>(removeSeries => HandleRemoveSeries(removeSeries));
 Receive<Metric>(metric => HandleMetrics(metric));
 ```
@@ -899,7 +936,8 @@ Add the following declarations to the top of the `Main` class inside `Main.cs`:
 ```csharp
 // Main.cs - at top of Main class
 private IActorRef _coordinatorActor;
-private Dictionary<CounterType, IActorRef> _toggleActors = new Dictionary<CounterType, IActorRef>();
+private Dictionary<CounterType, IActorRef> _toggleActors = new Dictionary<CounterType,
+    IActorRef>();
 ```
 
 Then, replace the `Main_Load` event handler in the `Init` region so that it matches this:
@@ -908,7 +946,8 @@ Then, replace the `Main_Load` event handler in the `Init` region so that it matc
 // Main.cs - replace Main_Load event handler in the Init region
 private void Main_Load(object sender, EventArgs e)
 {
-    _chartActor = Program.ChartActors.ActorOf(Props.Create(() => new ChartingActor(sysChart)), "charting");
+    _chartActor = Program.ChartActors.ActorOf(Props.Create(() =>
+        new ChartingActor(sysChart)), "charting");
     _chartActor.Tell(new ChartingActor.InitializeChart(null)); //no initial series
 
     _coordinatorActor = Program.ChartActors.ActorOf(Props.Create(() =>
@@ -916,18 +955,21 @@ private void Main_Load(object sender, EventArgs e)
 
     // CPU button toggle actor
     _toggleActors[CounterType.Cpu] = Program.ChartActors.ActorOf(
-        Props.Create(() => new ButtonToggleActor(_coordinatorActor, btnCpu, CounterType.Cpu, false))
-            .WithDispatcher("akka.actor.synchronized-dispatcher"));
+        Props.Create(() => new ButtonToggleActor(_coordinatorActor, btnCpu, 
+        CounterType.Cpu, false))
+        .WithDispatcher("akka.actor.synchronized-dispatcher"));
 
     // MEMORY button toggle actor
     _toggleActors[CounterType.Memory] = Program.ChartActors.ActorOf(
-       Props.Create(() => new ButtonToggleActor(_coordinatorActor, btnMemory, CounterType.Memory, false))
-           .WithDispatcher("akka.actor.synchronized-dispatcher"));
+       Props.Create(() => new ButtonToggleActor(_coordinatorActor, btnMemory,
+        CounterType.Memory, false))
+        .WithDispatcher("akka.actor.synchronized-dispatcher"));
 
     // DISK button toggle actor
     _toggleActors[CounterType.Disk] = Program.ChartActors.ActorOf(
-       Props.Create(() => new ButtonToggleActor(_coordinatorActor, btnDisk, CounterType.Disk, false))
-           .WithDispatcher("akka.actor.synchronized-dispatcher"));
+       Props.Create(() => new ButtonToggleActor(_coordinatorActor, btnDisk,
+       CounterType.Disk, false))
+       .WithDispatcher("akka.actor.synchronized-dispatcher"));
 
     // Set the CPU toggle to ON so we start getting some data
     _toggleActors[CounterType.Cpu].Tell(new ButtonToggleActor.Toggle());
@@ -969,7 +1011,8 @@ private void btnDisk_Click(object sender, EventArgs e)
 ### Once you're done
 Build and run `SystemCharting.sln` and you should see the following:
 
-![Successful Lesson 3 Output](images/dothis-successful-run3.gif)
+![Successful Lesson 3 Output (animated gif)](images/dothis-successful-run3.gif)
+> NOTE: for those of you following along in the eBook, this is an animated GIF of the live charting function working. [Click here to see it](https://github.com/petabridge/akka-bootcamp/raw/master/src/Unit-2/lesson3/images/dothis-successful-run3.gif).
 
 Compare your code to the code in the [/Completed/ folder](Completed/) to compare your final output to what the instructors produced.
 
@@ -984,10 +1027,9 @@ Here is a high-level overview of our working system at this point:
 
 ![Akka.NET Bootcamp Unit 2 System Overview](images/system_overview_2_3.png)
 
-**Let's move onto [Lesson 4 - Switching Actor Behavior at Run-time with `Become` and `Unbecome`](../lesson4).**
+**Let's move onto [Lesson 4 - Switching Actor Behavior at Run-time with `Become` and `Unbecome`](../lesson4/README.md).**
 
 ## Any questions?
-**Don't be afraid to ask questions** :).
 
 Come ask any questions you have, big or small, [in this ongoing Bootcamp chat with the Petabridge & Akka.NET teams](https://gitter.im/petabridge/akka-bootcamp).
 
