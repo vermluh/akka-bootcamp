@@ -21,6 +21,7 @@
         #endregion
 
         #region methods
+        #region protected override void OnReceive(object)
         protected override void OnReceive(object message)
         {
             var msg = message as string;
@@ -53,6 +54,7 @@
                 }
             }
         }
+        #endregion
 
         #region private static bool IsFileUri(string)
         /// <summary>

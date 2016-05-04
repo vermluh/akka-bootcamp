@@ -9,6 +9,8 @@ namespace WinTail
     /// </summary>
     class ConsoleWriterActor : UntypedActor
     {
+        #region methods
+        #region protected override void OnReceive(object)
         protected override void OnReceive(object message)
         {
             if (message is Messages.InputError)
@@ -30,5 +32,7 @@ namespace WinTail
 
             Console.ResetColor();
         }
+        #endregion
+        #endregion
     }
 }

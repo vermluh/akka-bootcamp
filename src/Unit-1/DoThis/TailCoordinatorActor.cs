@@ -21,6 +21,7 @@
         }
         #endregion
 
+        #region protected override SupervisorStrategy SupervisorStrategy()
         protected override SupervisorStrategy SupervisorStrategy()
         {
             return new OneForOneStrategy(
@@ -40,36 +41,55 @@
                 });
         }
         #endregion
+        #endregion
 
-        #region message types
+        #region classes
+        #region StartTail
         /// <summary>
         /// Start tailing the file at user-specified path.
         /// </summary>
         public class StartTail
         {
+            #region constructor
             public StartTail(string filePath, IActorRef reporterActor)
             {
-                FilePath = filePath;
-                ReporterActor = reporterActor;
+                this.FilePath = filePath;
+                this.ReporterActor = reporterActor;
             }
+            #endregion
 
+            #region properties
+            #region public string FilePath { get; private set; }
             public string FilePath { get; private set; }
+            #endregion
 
+            #region public IActorRef ReporterActor { get; private set; }
             public IActorRef ReporterActor { get; private set; }
+            #endregion
+            #endregion
         }
+        #endregion
 
+        #region StopTail
         /// <summary>
         /// Stop tailing the file at user-specified path.
         /// </summary>
         public class StopTail
         {
+            #region constructor
             public StopTail(string filePath)
             {
-                FilePath = filePath;
+                this.FilePath = filePath;
             }
+            #endregion
 
+            #region properties
+            #region public string FilePath { get; private set; }
             public string FilePath { get; private set; }
+            #endregion
+            #endregion
         }
+        #endregion
         #endregion
     }
 }

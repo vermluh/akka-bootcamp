@@ -9,25 +9,32 @@ namespace WinTail
     /// </summary>
     class ConsoleReaderActor : UntypedActor
     {
+        #region fields
         public const string ExitCommand = "exit";
         public const string StartCommand = "start";
+        #endregion
 
+        #region methods
+        #region protected override void OnReceive(object)
         protected override void OnReceive(object message)
         {
             if (message.Equals(StartCommand))
             {
-                DoPrintInstructions();
+                this.DoPrintInstructions();
             }
             
-            GetAndValidateInput();
+            this.GetAndValidateInput();
         }
+        #endregion
 
-        #region Internal methods
+        #region private void DoPrintInstructions()
         private void DoPrintInstructions()
         {
             Console.WriteLine("Please provide the URI of a log file on disk.\n");
         }
+        #endregion
 
+        #region private void GetAndValidateInput()
         /// <summary>
         /// Reads input from console, validates it, then signals appropriate response
         /// (continue processing, error, success, etc.).
@@ -39,25 +46,14 @@ namespace WinTail
             if (!string.IsNullOrEmpty(message) && String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
             {
                 // shut down the entire actor system (allows the process to exit)
-                Context.System.Shutdown();
+                Context.System.Terminate();
                 return;
             }
 
             // otherwise, just hand message off for validation
             Context.ActorSelection("akka://MyActorSystem/user/validationActor").Tell(message);
         }
-
-        /// <summary>
-        /// Validates <see cref="message"/>.
-        /// Currently says messages are valid if contain even number of characters.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        private static bool IsValid(string message)
-        {
-            var valid = message.Length % 2 == 0;
-            return valid;
-        }
+        #endregion
         #endregion
     }
 }
